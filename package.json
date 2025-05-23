@@ -1,0 +1,12 @@
+{
+  "name": "trading-journal",
+  "version": "1.0.0",
+  "description": "A trading journal application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 
