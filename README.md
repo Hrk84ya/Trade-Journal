@@ -1,56 +1,135 @@
 # Trading Journal App
 
-A feature-rich trading journal application built with vanilla JavaScript, HTML5, and CSS3. This application helps traders log, analyze, and reflect on their trades.
+A comprehensive trading journal application built with modern web technologies to help traders track, analyze, and improve their trading performance. The application features a clean, intuitive interface with powerful analytics and data management capabilities.
 
-## Features
+## ✨ Features
 
-- 📊 Dashboard with key trading metrics
-- 📝 Trade logging with detailed entry/exit information
-- 📈 Performance analytics and charts
-- 🔍 Advanced trade filtering and search
-- 🌓 Light/Dark mode support
-- 💾 Local storage for data persistence
-- 📱 Responsive design for all devices
+- 📊 **Interactive Dashboard** - Track key metrics including win rate, total P&L, and average risk/reward ratio
+- 📝 **Trade Management** - Add, edit, and delete trades with detailed information
+- 📈 **Advanced Analytics** - Visualize trading performance with interactive charts
+- 🔍 **Smart Filtering** - Filter trades by date, setup, result, and more
+- 💾 **Data Persistence** - Save your trading data locally or export/import as JSON
+- 🌓 **Dark/Light Mode** - Choose your preferred theme for comfortable viewing
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
+- 🔄 **Real-time Updates** - See your stats update instantly as you log trades
 
-## Tech Stack
+## 🚀 Tech Stack
 
-- HTML5
-- CSS3 (Flexbox/Grid)
-- Vanilla JavaScript (ES6+)
-- LocalStorage for data persistence
-- Chart.js for data visualization
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
+- **Charts**: Chart.js for beautiful, interactive data visualization
+- **Styling**: CSS Grid, Flexbox, and CSS Variables for theming
+- **Backend**: Node.js with Express for data persistence
+- **Containerization**: Docker support for easy deployment
 
-## Project Structure
+## 📦 Project Structure
 
 ```
-/trading-journal-app
-│
-├── index.html          # Main application entry point
+trade-journal/
+├── index.html            # Main application entry point
+├── server.js             # Express server for data persistence
+├── nginx.conf            # Nginx configuration for production
+├── Dockerfile            # Docker configuration
+├── package.json          # Project dependencies
 ├── /css
-│   └── styles.css      # Main stylesheet
+│   └── styles.css        # Main stylesheet with theming support
 ├── /js
-│   ├── main.js         # Application initialization
-│   ├── trades.js       # Trade management logic
-│   ├── charts.js       # Chart rendering
-│   └── storage.js      # LocalStorage helpers
-└── /assets            # Static assets
+│   ├── main.js           # Application initialization and routing
+│   ├── trades.js         # Trade management and business logic
+│   ├── charts.js         # Chart rendering and visualization
+│   └── storage.js        # Data persistence and server communication
+└── trading_journal_data.json  # Default data storage file
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
-1. Clone the repository
-2. Open `index.html` in your browser
-3. Start logging your trades!
+### Prerequisites
 
-## Development
+- Node.js (v14 or higher)
+- npm or yarn
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
-The application uses vanilla JavaScript with a modular structure. Each JavaScript file handles a specific aspect of the application:
+### Local Development
 
-- `main.js`: Application initialization and routing
-- `trades.js`: Trade CRUD operations and management
-- `charts.js`: Data visualization and chart generation
-- `storage.js`: LocalStorage data persistence
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/trade-journal.git
+   cd trade-journal
+   ```
 
-## License
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-MIT License 
+3. **Start the development server**
+   ```bash
+   node server.js
+   ```
+   The app will be available at `http://localhost:3000`
+
+### Docker Deployment
+
+1. **Build the Docker image**
+   ```bash
+   docker build -t trade-journal .
+   ```
+
+2. **Run the container**
+   ```bash
+   docker run -p 3000:80 trade-journal
+   ```
+   The app will be available at `http://localhost:3000`
+
+## 📚 Usage
+
+1. **Adding a Trade**
+   - Click "Add Trade" in the sidebar
+   - Fill in the trade details (ticker, direction, entry/exit prices, etc.)
+   - Click "Add Trade" to save
+
+2. **Viewing Trades**
+   - Navigate to "Trade History" to see all your trades
+   - Use filters to find specific trades
+   - Click the edit (✏️) or delete (🗑️) icons to modify trades
+
+3. **Exporting/Importing Data**
+   - Go to "Trade History"
+   - Click "Export Data" to download your trades as JSON
+   - Use "Import Data" to load previously exported data
+
+## 🛠 Development
+
+The application follows a modular architecture:
+
+- `main.js` - Handles application initialization, routing, and UI updates
+- `trades.js` - Manages trade-related operations (CRUD, calculations, filtering)
+- `charts.js` - Handles data visualization using Chart.js
+- `storage.js` - Manages data persistence and server communication
+
+### Building for Production
+
+To create a production build:
+
+1. Minify and bundle assets
+2. Optimize images
+3. Generate service worker for offline support
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Chart.js](https://www.chartjs.org/) for beautiful charts
+- [Font Awesome](https://fontawesome.com/) for icons
+- All the amazing open-source projects that made this possible
