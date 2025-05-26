@@ -52,9 +52,10 @@ class TradeManager {
     }
 
     // Trade form handling
-    handleTradeSubmit(e) {
+    async handleTradeSubmit(e) {
         e.preventDefault();
-        const formData = new FormData(e.target);
+        const form = e.target;
+        const formData = new FormData(form);
         const trade = {
             ticker: formData.get('ticker').toUpperCase(),
             direction: formData.get('direction'),
@@ -67,18 +68,41 @@ class TradeManager {
             notes: formData.get('notes')
         };
 
-        // Calculate P&L
+        // Calculate P&L and R:R
         trade.pnl = this.calculatePnL(trade);
         trade.rr = this.calculateRR(trade);
 
-        // Add trade to storage
-        storage.addTrade(trade);
-        this.trades = storage.getTrades();
+        try {
+            // Check if this is an edit or new trade
+            const isEdit = form.dataset.editId;
+            
+            if (isEdit) {
+                // Update existing trade
+                trade.id = form.dataset.editId;
+                await storage.updateTrade(trade.id, trade);
+                this.showToast('Trade updated successfully!');
+                delete form.dataset.editId;
+            } else {
+                // Add new trade
+                trade.id = Date.now().toString();
+                await storage.addTrade(trade);
+                this.showToast('Trade added successfully!');
+            }
 
-        // Reset form and show success message
-        e.target.reset();
-        this.showToast('Trade added successfully!');
-        this.updateUI();
+            // Update local state
+            this.trades = storage.getTrades();
+            
+            // Reset form and update UI
+            form.reset();
+            this.updateUI();
+            
+            // Navigate back to dashboard
+            document.querySelector('.nav-links li[data-page="dashboard"]')?.click();
+            
+        } catch (error) {
+            console.error('Error saving trade:', error);
+            this.showToast('Error saving trade. Please try again.');
+        }
     }
 
     // Trade calculations
@@ -243,28 +267,58 @@ class TradeManager {
     }
 
     // Trade actions
-    editTrade(tradeId) {
+    async editTrade(tradeId) {
         const trade = this.trades.find(t => t.id === tradeId);
-        if (trade) {
-            // Populate form with trade data
-            const form = document.getElementById('trade-form');
-            if (form) {
-                Object.keys(trade).forEach(key => {
-                    const input = form.elements[key];
-                    if (input) {
-                        input.value = trade[key];
-                    }
-                });
+        if (!trade) return;
+
+        // Navigate to the add trade page
+        document.querySelectorAll('.nav-links li').forEach(li => {
+            if (li.dataset.page === 'add-trade') {
+                li.click();
             }
-        }
+        });
+
+        // Wait for the form to be visible
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Populate form with trade data
+        const form = document.getElementById('trade-form');
+        if (!form) return;
+
+        // Store the trade ID for update
+        form.dataset.editId = tradeId;
+
+        // Populate form fields
+        form.elements['ticker'].value = trade.ticker || '';
+        form.elements['direction'].value = trade.direction || 'long';
+        form.elements['entry-date'].value = trade.entryDate ? trade.entryDate.split('T')[0] : '';
+        form.elements['exit-date'].value = trade.exitDate ? trade.exitDate.split('T')[0] : '';
+        form.elements['entry-price'].value = trade.entryPrice || '';
+        form.elements['exit-price'].value = trade.exitPrice || '';
+        form.elements['position-size'].value = trade.positionSize || '';
+        form.elements['setup'].value = trade.setup || '';
+        form.elements['notes'].value = trade.notes || '';
+
+        // Update form title and submit button
+        const formTitle = form.querySelector('h2');
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (formTitle) formTitle.textContent = 'Edit Trade';
+        if (submitButton) submitButton.textContent = 'Update Trade';
     }
 
-    deleteTrade(tradeId) {
-        if (confirm('Are you sure you want to delete this trade?')) {
-            storage.deleteTrade(tradeId);
+    async deleteTrade(tradeId) {
+        if (!confirm('Are you sure you want to delete this trade?')) {
+            return;
+        }
+
+        try {
+            await storage.deleteTrade(tradeId);
             this.trades = storage.getTrades();
             this.updateUI();
             this.showToast('Trade deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting trade:', error);
+            this.showToast('Error deleting trade. Please try again.');
         }
     }
 
@@ -283,4 +337,8 @@ class TradeManager {
 
 // Create and export a single instance
 const tradeManager = new TradeManager();
+
+// Make tradeManager globally accessible for inline event handlers
+window.tradeManager = tradeManager;
+
 export default tradeManager;

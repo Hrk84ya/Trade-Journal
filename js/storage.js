@@ -19,26 +19,31 @@ class Storage {
 
     async initializeStorage() {
         try {
-            // Try to load data from file
-            const response = await fetch(this.DATA_FILE);
+            // Try to load data from server
+            const response = await fetch('/trading_journal_data.json');
             if (response.ok) {
                 const data = await response.json();
                 this.loadData(data);
             } else {
-                // If file doesn't exist, initialize with defaults
+                // If no data exists, initialize with defaults
                 this.initializeWithDefaults();
             }
         } catch (error) {
-            console.log('No existing data file found, initializing with defaults');
+            console.log('Error loading data, initializing with defaults', error);
             this.initializeWithDefaults();
         }
     }
 
-    initializeWithDefaults() {
+    async initializeWithDefaults() {
         localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify([]));
         localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(this.DEFAULT_SETUP_TAGS));
         localStorage.setItem(this.STORAGE_KEYS.THEME, 'light');
-        this.saveToFile();
+        try {
+            await this.saveToServer();
+        } catch (error) {
+            console.error('Failed to initialize with defaults on server:', error);
+            // Continue even if server save fails, as we've set the local storage
+        }
     }
 
     loadData(data) {
@@ -53,15 +58,16 @@ class Storage {
         }
     }
 
-    async saveToFile() {
-        const data = {
-            trades: this.getTrades(),
-            setupTags: this.getSetupTags(),
-            theme: this.getTheme()
-        };
-
+    async saveToServer() {
         try {
-            const response = await fetch(this.DATA_FILE, {
+            const data = {
+                trades: this.getTrades(),
+                setupTags: this.getSetupTags(),
+                theme: this.getTheme()
+            };
+            
+            // Save data to server
+            const response = await fetch('/trading_journal_data.json', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -70,12 +76,13 @@ class Storage {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save data to file');
+                throw new Error('Failed to save data');
             }
+            
+            console.log('Data saved successfully');
         } catch (error) {
-            console.error('Error saving data to file:', error);
-            // Fallback to localStorage only
-            console.log('Falling back to localStorage only');
+            console.error('Error saving data:', error);
+            throw error; // Re-throw to allow error handling in calling code
         }
     }
 
@@ -85,7 +92,12 @@ class Storage {
         trade.id = Date.now().toString(); // Generate unique ID
         trades.push(trade);
         localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(trades));
-        await this.saveToFile();
+        try {
+            await this.saveToServer();
+        } catch (error) {
+            console.error('Failed to save trade to server:', error);
+            throw error; // Re-throw to handle in the UI
+        }
     }
 
     async updateTrade(tradeId, updatedTrade) {
@@ -94,7 +106,12 @@ class Storage {
         if (index !== -1) {
             trades[index] = { ...trades[index], ...updatedTrade };
             localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(trades));
-            await this.saveToFile();
+            try {
+                await this.saveToServer();
+            } catch (error) {
+                console.error('Failed to update trade on server:', error);
+                throw error;
+            }
         }
     }
 
@@ -102,7 +119,12 @@ class Storage {
         const trades = this.getTrades();
         const filteredTrades = trades.filter(trade => trade.id !== tradeId);
         localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(filteredTrades));
-        await this.saveToFile();
+        try {
+            await this.saveToServer();
+        } catch (error) {
+            console.error('Failed to delete trade from server:', error);
+            throw error;
+        }
     }
 
     getTrades() {
@@ -115,7 +137,12 @@ class Storage {
         if (!tags.includes(tag)) {
             tags.push(tag);
             localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(tags));
-            await this.saveToFile();
+            try {
+                await this.saveToServer();
+            } catch (error) {
+                console.error('Failed to save setup tag to server:', error);
+                throw error;
+            }
         }
     }
 
@@ -123,7 +150,12 @@ class Storage {
         const tags = this.getSetupTags();
         const filteredTags = tags.filter(t => t !== tag);
         localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(filteredTags));
-        await this.saveToFile();
+        try {
+            await this.saveToServer();
+        } catch (error) {
+            console.error('Failed to remove setup tag from server:', error);
+            throw error;
+        }
     }
 
     getSetupTags() {
@@ -133,7 +165,12 @@ class Storage {
     // Theme management
     async setTheme(theme) {
         localStorage.setItem(this.STORAGE_KEYS.THEME, theme);
-        await this.saveToFile();
+        try {
+            await this.saveToServer();
+        } catch (error) {
+            console.error('Failed to save theme to server:', error);
+            // Don't throw for theme changes to avoid breaking UI
+        }
     }
 
     getTheme() {
@@ -142,20 +179,55 @@ class Storage {
 
     // Data export/import
     exportData() {
-        const data = {
-            trades: this.getTrades(),
-            setupTags: this.getSetupTags(),
-            theme: this.getTheme()
-        };
-        return JSON.stringify(data, null, 2);
+        try {
+            const data = {
+                version: '1.0',
+                lastUpdated: new Date().toISOString(),
+                trades: this.getTrades(),
+                setupTags: this.getSetupTags(),
+                theme: this.getTheme()
+            };
+            return JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            throw error;
+        }
     }
 
     async importData(data) {
         try {
             const parsedData = JSON.parse(data);
-            this.loadData(parsedData);
-            await this.saveToFile();
-            return true;
+            
+            // Validate the imported data structure
+            if (!parsedData || typeof parsedData !== 'object') {
+                console.error('Invalid data format');
+                return false;
+            }
+            
+            // Create a backup of current data before importing
+            const backup = {
+                trades: this.getTrades(),
+                setupTags: this.getSetupTags(),
+                theme: this.getTheme()
+            };
+            
+            try {
+                // Load the new data
+                this.loadData(parsedData);
+                
+                // Save to server
+                await this.saveToServer();
+                
+                // If we got here, the import was successful
+                return true;
+                
+            } catch (error) {
+                // Restore from backup if something goes wrong
+                console.error('Error during import, restoring backup:', error);
+                this.loadData(backup);
+                throw error;
+            }
+            
         } catch (error) {
             console.error('Error importing data:', error);
             return false;
@@ -164,7 +236,7 @@ class Storage {
 
     // Clear all data
     async clearData() {
-        this.initializeWithDefaults();
+        await this.initializeWithDefaults();
     }
 }
 

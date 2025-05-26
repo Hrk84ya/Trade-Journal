@@ -4,9 +4,16 @@
   "description": "A trading journal application",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'Build process would go here'",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -t trading-journal .",
+    "docker:run": "docker run -p 8080:80 trading-journal"
   },
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
   }
 } 
