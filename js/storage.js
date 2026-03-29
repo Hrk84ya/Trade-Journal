@@ -3,30 +3,32 @@ class Storage {
         this.STORAGE_KEYS = {
             TRADES: 'trades',
             SETUP_TAGS: 'setup_tags',
+            CUSTOM_TAGS: 'custom_tags',
             THEME: 'theme'
         };
 
         this.DEFAULT_SETUP_TAGS = [
-            'Breakout',
-            'Breakdown',
-            'Reversal',
-            'Continuation'
+            'Breakout', 'Breakdown', 'Reversal', 'Continuation',
+            'Gap Fill', 'VWAP Bounce', 'Moving Avg Bounce', 'Pullback',
+            'Momentum', 'Mean Reversion', 'Scalp', 'Swing'
+        ];
+
+        this.DEFAULT_CUSTOM_TAGS = [
+            'High Conviction', 'Earnings Play', 'News Catalyst',
+            'Technical', 'Fundamental', 'Revenge Trade', 'FOMO'
         ];
 
         this.DATA_FILE = 'trading_journal_data.json';
-        // Expose a promise that resolves when server data is loaded
         this.ready = this.initializeStorage();
     }
 
     async initializeStorage() {
         try {
-            // Try to load data from server
             const response = await fetch('/trading_journal_data.json');
             if (response.ok) {
                 const data = await response.json();
                 this.loadData(data);
             } else {
-                // If no data exists, initialize with defaults
                 await this.initializeWithDefaults();
             }
         } catch (error) {
@@ -38,209 +40,149 @@ class Storage {
     async initializeWithDefaults() {
         localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify([]));
         localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(this.DEFAULT_SETUP_TAGS));
+        localStorage.setItem(this.STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(this.DEFAULT_CUSTOM_TAGS));
         localStorage.setItem(this.STORAGE_KEYS.THEME, 'light');
-        try {
-            await this.saveToServer();
-        } catch (error) {
-            console.error('Failed to initialize with defaults on server:', error);
-            // Continue even if server save fails, as we've set the local storage
-        }
+        try { await this.saveToServer(); }
+        catch (error) { console.error('Failed to initialize with defaults on server:', error); }
     }
 
     loadData(data) {
-        if (data.trades) {
-            localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(data.trades));
-        }
-        if (data.setupTags) {
-            localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(data.setupTags));
-        }
-        if (data.theme) {
-            localStorage.setItem(this.STORAGE_KEYS.THEME, data.theme);
-        }
+        if (data.trades) localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(data.trades));
+        if (data.setupTags) localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(data.setupTags));
+        if (data.customTags) localStorage.setItem(this.STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(data.customTags));
+        if (data.theme) localStorage.setItem(this.STORAGE_KEYS.THEME, data.theme);
     }
 
     async saveToServer() {
-        try {
-            const data = {
-                trades: this.getTrades(),
-                setupTags: this.getSetupTags(),
-                theme: this.getTheme()
-            };
-            
-            // Save data to server
-            const response = await fetch('/trading_journal_data.json', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data, null, 2)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save data');
-            }
-            
-            console.log('Data saved successfully');
-        } catch (error) {
-            console.error('Error saving data:', error);
-            throw error; // Re-throw to allow error handling in calling code
-        }
+        const data = {
+            trades: this.getTrades(),
+            setupTags: this.getSetupTags(),
+            customTags: this.getCustomTags(),
+            theme: this.getTheme()
+        };
+        const response = await fetch('/trading_journal_data.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data, null, 2)
+        });
+        if (!response.ok) throw new Error('Failed to save data');
     }
 
-    // Trade management
+    // --- Trade CRUD ---
+
     async addTrade(trade) {
         const trades = this.getTrades();
-        trade.id = Date.now().toString(); // Generate unique ID
+        trade.id = Date.now().toString();
         trades.push(trade);
         localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(trades));
-        try {
-            await this.saveToServer();
-        } catch (error) {
-            console.error('Failed to save trade to server:', error);
-            throw error; // Re-throw to handle in the UI
-        }
+        await this.saveToServer();
     }
 
     async updateTrade(tradeId, updatedTrade) {
         const trades = this.getTrades();
-        const index = trades.findIndex(trade => trade.id === tradeId);
+        const index = trades.findIndex(t => t.id === tradeId);
         if (index !== -1) {
             trades[index] = { ...trades[index], ...updatedTrade };
             localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(trades));
-            try {
-                await this.saveToServer();
-            } catch (error) {
-                console.error('Failed to update trade on server:', error);
-                throw error;
-            }
+            await this.saveToServer();
         }
     }
 
     async deleteTrade(tradeId) {
-        const trades = this.getTrades();
-        const filteredTrades = trades.filter(trade => trade.id !== tradeId);
-        localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(filteredTrades));
-        try {
-            await this.saveToServer();
-        } catch (error) {
-            console.error('Failed to delete trade from server:', error);
-            throw error;
-        }
+        const trades = this.getTrades().filter(t => t.id !== tradeId);
+        localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(trades));
+        await this.saveToServer();
     }
 
     getTrades() {
         return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.TRADES)) || [];
     }
 
-    // Setup tags management
-    async addSetupTag(tag) {
-        const tags = this.getSetupTags();
-        if (!tags.includes(tag)) {
-            tags.push(tag);
-            localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(tags));
-            try {
-                await this.saveToServer();
-            } catch (error) {
-                console.error('Failed to save setup tag to server:', error);
-                throw error;
-            }
-        }
-    }
-
-    async removeSetupTag(tag) {
-        const tags = this.getSetupTags();
-        const filteredTags = tags.filter(t => t !== tag);
-        localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(filteredTags));
-        try {
-            await this.saveToServer();
-        } catch (error) {
-            console.error('Failed to remove setup tag from server:', error);
-            throw error;
-        }
-    }
+    // --- Setup tags ---
 
     getSetupTags() {
         return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.SETUP_TAGS)) || this.DEFAULT_SETUP_TAGS;
     }
 
-    // Theme management
+    async addSetupTag(tag) {
+        const tags = this.getSetupTags();
+        if (!tags.includes(tag)) { tags.push(tag); localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(tags)); await this.saveToServer(); }
+    }
+
+    async removeSetupTag(tag) {
+        const tags = this.getSetupTags().filter(t => t !== tag);
+        localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(tags));
+        await this.saveToServer();
+    }
+
+    // --- Custom tags (labels) ---
+
+    getCustomTags() {
+        return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.CUSTOM_TAGS)) || this.DEFAULT_CUSTOM_TAGS;
+    }
+
+    async addCustomTag(tag) {
+        const tags = this.getCustomTags();
+        if (!tags.includes(tag)) { tags.push(tag); localStorage.setItem(this.STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(tags)); await this.saveToServer(); }
+    }
+
+    async removeCustomTag(tag) {
+        const tags = this.getCustomTags().filter(t => t !== tag);
+        localStorage.setItem(this.STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(tags));
+        await this.saveToServer();
+    }
+
+    // --- Theme ---
+
     async setTheme(theme) {
         localStorage.setItem(this.STORAGE_KEYS.THEME, theme);
-        try {
-            await this.saveToServer();
-        } catch (error) {
-            console.error('Failed to save theme to server:', error);
-            // Don't throw for theme changes to avoid breaking UI
-        }
+        try { await this.saveToServer(); } catch (e) { /* non-critical */ }
     }
 
     getTheme() {
         return localStorage.getItem(this.STORAGE_KEYS.THEME) || 'light';
     }
 
-    // Data export/import
+    // --- Export / Import ---
+
     exportData() {
-        try {
-            const data = {
-                version: '1.0',
-                lastUpdated: new Date().toISOString(),
-                trades: this.getTrades(),
-                setupTags: this.getSetupTags(),
-                theme: this.getTheme()
-            };
-            return JSON.stringify(data, null, 2);
-        } catch (error) {
-            console.error('Error exporting data:', error);
-            throw error;
-        }
+        return JSON.stringify({
+            version: '2.0',
+            lastUpdated: new Date().toISOString(),
+            trades: this.getTrades(),
+            setupTags: this.getSetupTags(),
+            customTags: this.getCustomTags(),
+            theme: this.getTheme()
+        }, null, 2);
     }
 
     async importData(data) {
         try {
             const parsedData = JSON.parse(data);
-            
-            // Validate the imported data structure
-            if (!parsedData || typeof parsedData !== 'object') {
-                console.error('Invalid data format');
-                return false;
-            }
-            
-            // Create a backup of current data before importing
+            if (!parsedData || typeof parsedData !== 'object') return false;
+
             const backup = {
                 trades: this.getTrades(),
                 setupTags: this.getSetupTags(),
+                customTags: this.getCustomTags(),
                 theme: this.getTheme()
             };
-            
             try {
-                // Load the new data
                 this.loadData(parsedData);
-                
-                // Save to server
                 await this.saveToServer();
-                
-                // If we got here, the import was successful
                 return true;
-                
             } catch (error) {
-                // Restore from backup if something goes wrong
-                console.error('Error during import, restoring backup:', error);
                 this.loadData(backup);
                 throw error;
             }
-            
         } catch (error) {
             console.error('Error importing data:', error);
             return false;
         }
     }
 
-    // Clear all data
-    async clearData() {
-        await this.initializeWithDefaults();
-    }
+    async clearData() { await this.initializeWithDefaults(); }
 }
 
-// Create and export a single instance
 const storage = new Storage();
-export default storage; 
+export default storage;

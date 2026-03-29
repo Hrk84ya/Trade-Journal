@@ -583,3 +583,324 @@ tr:hover {
         overflow-x: auto;
     }
 } 
+
+/* ===== Rich Trade Form Styles ===== */
+
+.form-section {
+    border: 1px solid var(--light-border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    background-color: var(--light-bg);
+}
+
+.form-section legend {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--light-accent);
+    padding: 0 0.5rem;
+}
+
+.form-grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.form-group-btn {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 0.25rem;
+}
+
+.btn-icon {
+    background: none;
+    border: 1px solid var(--light-border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 0.65rem;
+    color: var(--light-text-secondary);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background-color: var(--light-hover);
+    color: var(--light-text);
+}
+
+.btn-icon-danger {
+    color: var(--light-danger);
+}
+
+.btn-icon-danger:hover {
+    background-color: var(--light-danger);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+.partial-row + .partial-row {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--light-border);
+}
+
+/* Tags / Labels */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+}
+
+.tag-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.tag-label {
+    padding: 0.35rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid var(--light-border);
+    background-color: var(--light-bg);
+    color: var(--light-text-secondary);
+    transition: all 0.2s;
+}
+
+.tag-checkbox input:checked + .tag-label {
+    background: var(--light-gradient);
+    color: white;
+    border-color: transparent;
+}
+
+.tag-pill {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--light-accent);
+    color: white;
+    white-space: nowrap;
+}
+
+.input-with-btn {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-with-btn input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--light-border);
+    border-radius: 0.5rem;
+    background-color: var(--light-bg);
+    color: var(--light-text);
+    font-size: 0.85rem;
+}
+
+/* Confidence slider */
+.confidence-slider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.confidence-slider input[type="range"] {
+    flex: 1;
+    accent-color: var(--light-accent);
+}
+
+.slider-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--light-accent);
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+/* Screenshots */
+.screenshot-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.screenshot-thumb {
+    position: relative;
+    width: 120px;
+    height: 90px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid var(--light-border);
+}
+
+.screenshot-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.screenshot-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+}
+
+/* Partial summary in table */
+.partial-summary {
+    font-size: 0.75rem;
+    color: var(--light-text-secondary);
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.action-btns {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.modal-content {
+    background: var(--light-card-bg);
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 800px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid var(--light-border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--light-text-secondary);
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--light-text);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    font-size: 0.85rem;
+}
+
+.detail-table th, .detail-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--light-border);
+    text-align: left;
+}
+
+.detail-tags {
+    margin: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.detail-screenshots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+}
+
+.detail-screenshots img {
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    border: 1px solid var(--light-border);
+}
+
+.detail-notes {
+    background: var(--light-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* Analytics grid */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+    .form-grid-4 {
+        grid-template-columns: 1fr;
+    }
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    .modal-content {
+        margin: 1rem;
+        padding: 1.25rem;
+    }
+}

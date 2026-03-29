@@ -144,7 +144,7 @@ class ChartManager {
         const sortedTrades = [...trades].sort((a, b) => new Date(a.entryDate) - new Date(b.entryDate));
         let cumulativePnL = 0;
         const data = sortedTrades.map(trade => {
-            const pnl = this.calculatePnL(trade);
+            const pnl = this.calculateNetPnL(trade);
             cumulativePnL += pnl;
             return {
                 x: new Date(trade.entryDate),
@@ -161,7 +161,7 @@ class ChartManager {
         const setups = [...new Set(trades.map(trade => trade.setup))];
         const data = setups.map(setup => {
             const setupTrades = trades.filter(trade => trade.setup === setup);
-            const winningTrades = setupTrades.filter(trade => this.calculatePnL(trade) > 0);
+            const winningTrades = setupTrades.filter(trade => this.calculateNetPnL(trade) > 0);
             return {
                 setup,
                 winRate: (winningTrades.length / setupTrades.length) * 100
@@ -174,9 +174,9 @@ class ChartManager {
     }
 
     updateWinLossChart(trades) {
-        const wins = trades.filter(trade => this.calculatePnL(trade) > 0).length;
-        const losses = trades.filter(trade => this.calculatePnL(trade) < 0).length;
-        const breakeven = trades.filter(trade => this.calculatePnL(trade) === 0).length;
+        const wins = trades.filter(trade => this.calculateNetPnL(trade) > 0).length;
+        const losses = trades.filter(trade => this.calculateNetPnL(trade) < 0).length;
+        const breakeven = trades.filter(trade => this.calculateNetPnL(trade) === 0).length;
 
         this.charts.winLoss.data.datasets[0].data = [wins, losses, breakeven];
         this.charts.winLoss.update();
@@ -186,7 +186,7 @@ class ChartManager {
         const monthlyPnL = {};
         trades.forEach(trade => {
             const month = new Date(trade.entryDate).toLocaleString('default', { month: 'short', year: 'numeric' });
-            const pnl = this.calculatePnL(trade);
+            const pnl = this.calculateNetPnL(trade);
             monthlyPnL[month] = (monthlyPnL[month] || 0) + pnl;
         });
 
@@ -201,10 +201,11 @@ class ChartManager {
         this.charts.monthlyPerformance.update();
     }
 
-    calculatePnL(trade) {
+    calculateNetPnL(trade) {
+        if (trade.netPnl !== undefined) return trade.netPnl;
         const priceDiff = trade.exitPrice - trade.entryPrice;
         const multiplier = trade.direction === 'long' ? 1 : -1;
-        return priceDiff * trade.positionSize * multiplier;
+        return (priceDiff * trade.positionSize * multiplier) - (trade.fees || 0);
     }
 }
 

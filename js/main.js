@@ -70,6 +70,7 @@ class App {
                         const submitButton = form.querySelector('button[type="submit"]');
                         if (formTitle) formTitle.textContent = 'Add New Trade';
                         if (submitButton) submitButton.textContent = 'Save Trade';
+                        tradeManager.resetFormUI();
                     }
                 }
             });
