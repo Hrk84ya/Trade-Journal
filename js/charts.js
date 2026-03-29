@@ -353,7 +353,7 @@ class ChartManager {
         c.update();
     }
 
-    // --- Calendar Heatmap (pure DOM, no Chart.js) ---
+    // --- Calendar Heatmap — fluid CSS Grid that fills the card ---
     renderHeatmap(trades) {
         const container = document.getElementById('calendar-heatmap');
         const yearLabel = document.getElementById('heatmap-year');
@@ -361,53 +361,48 @@ class ChartManager {
         const year = this.heatmapYear;
         if (yearLabel) yearLabel.textContent = year;
 
-        // Aggregate P&L by date
         const dailyPnl = {};
         trades.forEach(t => {
             const d = new Date(t.entryDate).toISOString().split('T')[0];
             dailyPnl[d] = (dailyPnl[d] || 0) + this.netPnl(t);
         });
-
-        // Find max absolute value for scaling
         const vals = Object.values(dailyPnl).filter(v => v !== 0);
         const maxAbs = vals.length ? Math.max(...vals.map(Math.abs)) : 1;
 
-        // Build 53 weeks x 7 days grid
         const jan1 = new Date(year, 0, 1);
-        const startDay = jan1.getDay(); // 0=Sun
+        const startDay = jan1.getDay();
         const startDate = new Date(jan1);
-        startDate.setDate(startDate.getDate() - startDay); // back to Sunday
+        startDate.setDate(startDate.getDate() - startDay);
 
-        let html = '<div class="heatmap-months">';
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        // Approximate month label positions
+
+        // Month labels row — uses same grid as cells
+        let html = '<div class="hm-months">';
         for (let m = 0; m < 12; m++) {
             const firstOfMonth = new Date(year, m, 1);
             const weekIdx = Math.floor((firstOfMonth - startDate) / (7 * 86400000));
-            html += `<span style="grid-column:${weekIdx + 1}">${months[m]}</span>`;
+            html += '<span style="grid-column:' + (weekIdx + 2) + '">' + months[m] + '</span>';
         }
-        html += '</div><div class="heatmap-grid">';
+        html += '</div>';
 
-        const dayLabels = ['','Mon','','Wed','','Fri',''];
-        html += '<div class="heatmap-day-labels">';
-        dayLabels.forEach(l => { html += `<span>${l}</span>`; });
-        html += '</div><div class="heatmap-cells">';
-
-        const cursor = new Date(startDate);
-        for (let w = 0; w < 53; w++) {
-            html += '<div class="heatmap-week">';
-            for (let d = 0; d < 7; d++) {
+        // Flat grid: 7 rows × (1 label col + 53 week cols), all 1fr
+        html += '<div class="hm-grid">';
+        const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        for (let d = 0; d < 7; d++) {
+            html += '<div class="hm-label">' + (d % 2 === 1 ? dayLabels[d] : '') + '</div>';
+            const cursor = new Date(startDate);
+            cursor.setDate(cursor.getDate() + d);
+            for (let w = 0; w < 53; w++) {
                 const dateStr = cursor.toISOString().split('T')[0];
                 const inYear = cursor.getFullYear() === year;
                 const pnl = dailyPnl[dateStr] || 0;
                 const color = !inYear ? 'transparent' : this.heatmapColor(pnl, maxAbs);
-                const title = inYear ? `${dateStr}: $${pnl.toFixed(2)}` : '';
-                html += `<div class="heatmap-cell" style="background:${color}" title="${title}"></div>`;
-                cursor.setDate(cursor.getDate() + 1);
+                const tip = inYear ? dateStr + ': $' + pnl.toFixed(2) : '';
+                html += '<div class="hm-cell" style="background:' + color + '" title="' + tip + '"></div>';
+                cursor.setDate(cursor.getDate() + 7);
             }
-            html += '</div>';
         }
-        html += '</div></div>';
+        html += '</div>';
         container.innerHTML = html;
     }
 

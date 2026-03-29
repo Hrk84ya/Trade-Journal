@@ -3,563 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Journal App</title>
+    <title>Trading Journal</title>
     <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
-    <!-- Marked.js for markdown rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
-<body class="light-theme">
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-brand">
-                <img src="logo.svg" alt="Trading Journal" class="sidebar-logo">
-                <h1>Trading Journal</h1>
+<body>
+    <div class="app-shell">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <img src="logo.svg" alt="" class="sidebar-logo">
+                    <span class="brand-text">TJ</span>
+                </div>
+                <button id="sidebar-toggle" class="sidebar-collapse-btn" aria-label="Toggle sidebar">
+                    <i class="fas fa-angles-left"></i>
+                </button>
             </div>
-            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-                <i class="fas fa-moon"></i>
-            </button>
-        </div>
-        <ul class="nav-links">
-            <li class="active" data-page="dashboard">
-                <i class="fas fa-chart-line"></i><span>Dashboard</span>
-            </li>
-            <li data-page="add-trade">
-                <i class="fas fa-plus-circle"></i><span>Add Trade</span>
-            </li>
-            <li data-page="trade-history">
-                <i class="fas fa-history"></i><span>Trade History</span>
-            </li>
-            <li data-page="journal">
-                <i class="fas fa-book"></i><span>Journal</span>
-            </li>
-            <li data-page="analytics">
-                <i class="fas fa-chart-pie"></i><span>Analytics</span>
-            </li>
-        </ul>
-    </nav>
+            <ul class="nav-links">
+                <li class="active" data-page="dashboard">
+                    <i class="fas fa-th-large"></i><span class="nav-label">Dashboard</span>
+                </li>
+                <li data-page="add-trade">
+                    <i class="fas fa-plus"></i><span class="nav-label">New Trade</span>
+                </li>
+                <li data-page="trade-history">
+                    <i class="fas fa-layer-group"></i><span class="nav-label">History</span>
+                </li>
+                <li data-page="journal">
+                    <i class="fas fa-feather-pointed"></i><span class="nav-label">Journal</span>
+                </li>
+                <li data-page="analytics">
+                    <i class="fas fa-chart-area"></i><span class="nav-label">Analytics</span>
+                </li>
+            </ul>
+            <div class="sidebar-bottom">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i><span class="nav-label">Theme</span>
+                </button>
+            </div>
+        </aside>
 
-    <main class="main-content">
-        <!-- Dashboard Page -->
-        <section id="dashboard" class="page active">
-            <h2>Dashboard</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Trades</h3>
-                    <p id="total-trades">0</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Win Rate</h3>
-                    <p id="win-rate">0%</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Total P&amp;L</h3>
-                    <p id="total-pnl">$0.00</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Avg R:R</h3>
-                    <p id="avg-rr">0.00</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Total Fees</h3>
-                    <p id="total-fees">$0.00</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Net P&amp;L</h3>
-                    <p id="net-pnl">$0.00</p>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="pnl-chart"></canvas>
-            </div>
-            <div class="recent-trades">
-                <h3>Recent Trades</h3>
-                <table id="recent-trades-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Ticker</th>
-                            <th>Class</th>
-                            <th>Direction</th>
-                            <th>Net P&amp;L</th>
-                            <th>R:R</th>
-                            <th>Setup</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Add Trade Page -->
-        <section id="add-trade" class="page">
-            <h2>Add New Trade</h2>
-            <form id="trade-form" class="trade-form">
-                <!-- Section: Core Info -->
-                <fieldset class="form-section">
-                    <legend>Core Info</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="asset-class">Asset Class</label>
-                            <select id="asset-class" name="asset-class" required>
-                                <option value="stocks">Stocks</option>
-                                <option value="options">Options</option>
-                                <option value="futures">Futures</option>
-                                <option value="crypto">Crypto</option>
-                            </select>
+        <!-- Main area -->
+        <div class="main-wrap">
+            <!-- ===== DASHBOARD ===== -->
+            <section id="dashboard" class="page active">
+                <!-- Hero banner -->
+                <div class="dash-hero">
+                    <div class="dash-hero-text">
+                        <h2>Good <span id="greeting-time">morning</span>,</h2>
+                        <p class="dash-subtitle">Here's your trading performance at a glance.</p>
+                    </div>
+                    <div class="dash-hero-stats">
+                        <div class="hero-stat">
+                            <span class="hero-stat-label">Net P&amp;L</span>
+                            <span class="hero-stat-value" id="net-pnl">$0.00</span>
                         </div>
-                        <div class="form-group">
-                            <label for="ticker">Ticker Symbol</label>
-                            <input type="text" id="ticker" name="ticker" placeholder="e.g. AAPL" required>
+                        <div class="hero-stat-divider"></div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-label">Win Rate</span>
+                            <span class="hero-stat-value" id="win-rate">0%</span>
                         </div>
-                        <div class="form-group">
-                            <label for="direction">Direction</label>
-                            <select id="direction" name="direction" required>
-                                <option value="long">Long</option>
-                                <option value="short">Short</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="position-size">Position Size</label>
-                            <input type="number" id="position-size" name="position-size" step="any" required>
+                        <div class="hero-stat-divider"></div>
+                        <div class="hero-stat">
+                            <span class="hero-stat-label">Trades</span>
+                            <span class="hero-stat-value" id="total-trades">0</span>
                         </div>
                     </div>
-                </fieldset>
+                </div>
 
-                <!-- Section: Asset-class specific fields -->
-                <fieldset id="options-fields" class="form-section asset-fields" style="display:none;">
-                    <legend>Options Details</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="option-type">Option Type</label>
-                            <select id="option-type" name="option-type">
-                                <option value="call">Call</option>
-                                <option value="put">Put</option>
-                            </select>
+                <div class="dash-grid">
+                    <!-- Left: chart -->
+                    <div class="dash-chart-wrap card">
+                        <div class="card-header">
+                            <h3>Equity Curve</h3>
                         </div>
-                        <div class="form-group">
-                            <label for="strike-price">Strike Price</label>
-                            <input type="number" id="strike-price" name="strike-price" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label for="expiration-date">Expiration Date</label>
-                            <input type="date" id="expiration-date" name="expiration-date">
-                        </div>
-                        <div class="form-group">
-                            <label for="contracts">Contracts</label>
-                            <input type="number" id="contracts" name="contracts" step="1">
+                        <div class="card-body">
+                            <canvas id="pnl-chart"></canvas>
                         </div>
                     </div>
-                </fieldset>
-
-                <fieldset id="futures-fields" class="form-section asset-fields" style="display:none;">
-                    <legend>Futures Details</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="contract-month">Contract Month</label>
-                            <input type="month" id="contract-month" name="contract-month">
+                    <!-- Right: quick stats -->
+                    <div class="dash-side">
+                        <div class="mini-card">
+                            <div class="mini-card-icon" style="--mc-color: var(--success)"><i class="fas fa-arrow-trend-up"></i></div>
+                            <div><span class="mini-card-label">Total P&amp;L</span><span class="mini-card-value" id="total-pnl">$0.00</span></div>
                         </div>
-                        <div class="form-group">
-                            <label for="tick-value">Tick Value ($)</label>
-                            <input type="number" id="tick-value" name="tick-value" step="0.01">
+                        <div class="mini-card">
+                            <div class="mini-card-icon" style="--mc-color: var(--danger)"><i class="fas fa-receipt"></i></div>
+                            <div><span class="mini-card-label">Total Fees</span><span class="mini-card-value" id="total-fees">$0.00</span></div>
                         </div>
-                    </div>
-                </fieldset>
-
-                <fieldset id="crypto-fields" class="form-section asset-fields" style="display:none;">
-                    <legend>Crypto Details</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="exchange">Exchange</label>
-                            <input type="text" id="exchange" name="exchange" placeholder="e.g. Binance, Coinbase">
-                        </div>
-                        <div class="form-group">
-                            <label for="leverage">Leverage</label>
-                            <input type="number" id="leverage" name="leverage" step="0.1" placeholder="1 = no leverage">
+                        <div class="mini-card">
+                            <div class="mini-card-icon" style="--mc-color: var(--accent)"><i class="fas fa-scale-balanced"></i></div>
+                            <div><span class="mini-card-label">Avg R:R</span><span class="mini-card-value" id="avg-rr">0.00</span></div>
                         </div>
                     </div>
-                </fieldset>
+                </div>
 
-                <!-- Section: Entries & Exits (partial scaling) -->
-                <fieldset class="form-section">
-                    <legend>Entries &amp; Exits</legend>
-                    <div id="entries-container">
-                        <div class="partial-row" data-index="0">
-                            <div class="form-grid form-grid-4">
-                                <div class="form-group">
-                                    <label>Entry Date</label>
-                                    <input type="datetime-local" name="entry-date-0" required>
+                <!-- Recent trades -->
+                <div class="card" style="margin-top:1.5rem;">
+                    <div class="card-header"><h3>Recent Trades</h3></div>
+                    <div class="card-body card-body-flush">
+                        <table id="recent-trades-table">
+                            <thead><tr>
+                                <th>Date</th><th>Ticker</th><th>Class</th><th>Direction</th><th>Net P&amp;L</th><th>R:R</th><th>Setup</th>
+                            </tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== ADD TRADE ===== -->
+            <section id="add-trade" class="page">
+                <div class="page-header"><h2>New Trade</h2></div>
+                <form id="trade-form" class="trade-form">
+                    <div class="form-columns">
+                        <div class="form-col-main">
+                            <fieldset class="form-section"><legend>Core Info</legend>
+                                <div class="form-grid">
+                                    <div class="form-group"><label for="asset-class">Asset Class</label><select id="asset-class" name="asset-class" required><option value="stocks">Stocks</option><option value="options">Options</option><option value="futures">Futures</option><option value="crypto">Crypto</option></select></div>
+                                    <div class="form-group"><label for="ticker">Ticker</label><input type="text" id="ticker" name="ticker" placeholder="AAPL" required></div>
+                                    <div class="form-group"><label for="direction">Direction</label><select id="direction" name="direction" required><option value="long">Long</option><option value="short">Short</option></select></div>
+                                    <div class="form-group"><label for="position-size">Size</label><input type="number" id="position-size" name="position-size" step="any" required></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Entry Price</label>
-                                    <input type="number" name="entry-price-0" step="0.01" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Shares/Qty</label>
-                                    <input type="number" name="entry-qty-0" step="any" required>
-                                </div>
-                                <div class="form-group form-group-btn">
-                                    <button type="button" class="btn-icon btn-remove-entry" title="Remove" style="visibility:hidden;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
+                            </fieldset>
+                            <fieldset id="options-fields" class="form-section asset-fields" style="display:none;"><legend>Options</legend><div class="form-grid"><div class="form-group"><label for="option-type">Type</label><select id="option-type" name="option-type"><option value="call">Call</option><option value="put">Put</option></select></div><div class="form-group"><label for="strike-price">Strike</label><input type="number" id="strike-price" name="strike-price" step="0.01"></div><div class="form-group"><label for="expiration-date">Expiry</label><input type="date" id="expiration-date" name="expiration-date"></div><div class="form-group"><label for="contracts">Contracts</label><input type="number" id="contracts" name="contracts" step="1"></div></div></fieldset>
+                            <fieldset id="futures-fields" class="form-section asset-fields" style="display:none;"><legend>Futures</legend><div class="form-grid"><div class="form-group"><label for="contract-month">Month</label><input type="month" id="contract-month" name="contract-month"></div><div class="form-group"><label for="tick-value">Tick Value</label><input type="number" id="tick-value" name="tick-value" step="0.01"></div></div></fieldset>
+                            <fieldset id="crypto-fields" class="form-section asset-fields" style="display:none;"><legend>Crypto</legend><div class="form-grid"><div class="form-group"><label for="exchange">Exchange</label><input type="text" id="exchange" name="exchange" placeholder="Binance"></div><div class="form-group"><label for="leverage">Leverage</label><input type="number" id="leverage" name="leverage" step="0.1" placeholder="1x"></div></div></fieldset>
+                            <fieldset class="form-section"><legend>Entries &amp; Exits</legend>
+                                <div id="entries-container"><div class="partial-row" data-index="0"><div class="form-grid form-grid-4"><div class="form-group"><label>Entry Date</label><input type="datetime-local" name="entry-date-0" required></div><div class="form-group"><label>Entry Price</label><input type="number" name="entry-price-0" step="0.01" required></div><div class="form-group"><label>Qty</label><input type="number" name="entry-qty-0" step="any" required></div><div class="form-group form-group-btn"><button type="button" class="btn-icon btn-remove-entry" title="Remove" style="visibility:hidden;"><i class="fas fa-times"></i></button></div></div></div></div>
+                                <button type="button" id="add-entry-btn" class="btn-secondary btn-sm"><i class="fas fa-plus"></i> Add Entry</button>
+                                <div id="exits-container" style="margin-top:1rem;"><div class="partial-row" data-index="0"><div class="form-grid form-grid-4"><div class="form-group"><label>Exit Date</label><input type="datetime-local" name="exit-date-0" required></div><div class="form-group"><label>Exit Price</label><input type="number" name="exit-price-0" step="0.01" required></div><div class="form-group"><label>Qty</label><input type="number" name="exit-qty-0" step="any" required></div><div class="form-group form-group-btn"><button type="button" class="btn-icon btn-remove-exit" title="Remove" style="visibility:hidden;"><i class="fas fa-times"></i></button></div></div></div></div>
+                                <button type="button" id="add-exit-btn" class="btn-secondary btn-sm"><i class="fas fa-plus"></i> Add Exit</button>
+                            </fieldset>
+                            <fieldset class="form-section"><legend>Risk</legend><div class="form-grid"><div class="form-group"><label for="stop-loss">Stop Loss</label><input type="number" id="stop-loss" name="stop-loss" step="0.01"></div><div class="form-group"><label for="take-profit">Take Profit</label><input type="number" id="take-profit" name="take-profit" step="0.01"></div><div class="form-group"><label for="fees">Fees ($)</label><input type="number" id="fees" name="fees" step="0.01" value="0"></div></div></fieldset>
+                        </div>
+                        <div class="form-col-side">
+                            <fieldset class="form-section"><legend>Setup &amp; Tags</legend>
+                                <div class="form-group"><label for="setup">Setup</label><select id="setup" name="setup" required></select></div>
+                                <div class="form-group" style="margin-top:0.75rem;"><label>Tags</label><div id="tags-container" class="tags-container"></div></div>
+                                <div class="form-group" style="margin-top:0.75rem;"><label for="new-setup-tag">New Setup</label><div class="input-with-btn"><input type="text" id="new-setup-tag" placeholder="Name..."><button type="button" id="add-setup-tag-btn" class="btn-secondary btn-sm">+</button></div></div>
+                                <div class="form-group" style="margin-top:0.5rem;"><label for="new-custom-tag">New Tag</label><div class="input-with-btn"><input type="text" id="new-custom-tag" placeholder="Name..."><button type="button" id="add-custom-tag-btn" class="btn-secondary btn-sm">+</button></div></div>
+                            </fieldset>
+                            <fieldset class="form-section"><legend>Psychology</legend>
+                                <div class="form-group"><label for="emotional-state">Emotion</label><select id="emotional-state" name="emotional-state"><option value="">Select...</option><option value="calm">😌 Calm</option><option value="confident">💪 Confident</option><option value="anxious">😰 Anxious</option><option value="fearful">😨 Fearful</option><option value="greedy">🤑 Greedy</option><option value="revenge">😤 Revenge</option><option value="fomo">😱 FOMO</option><option value="bored">😐 Bored</option></select></div>
+                                <div class="form-group" style="margin-top:0.75rem;"><label for="confidence">Confidence</label><div class="confidence-slider"><input type="range" id="confidence" name="confidence" min="1" max="10" value="5"><span id="confidence-value" class="slider-value">5</span></div></div>
+                            </fieldset>
+                            <fieldset class="form-section"><legend>Screenshots</legend><div class="form-group"><input type="file" id="screenshot-input" accept="image/*" multiple><div id="screenshot-preview" class="screenshot-preview"></div></div></fieldset>
+                            <fieldset class="form-section"><legend>Notes</legend><div class="form-group"><textarea id="notes" name="notes" rows="4" placeholder="Rationale, lessons..."></textarea></div></fieldset>
+                        </div>
+                    </div>
+                    <div class="form-actions"><button type="submit" class="btn-primary"><i class="fas fa-check"></i> Save Trade</button><button type="reset" class="btn-secondary">Reset</button></div>
+                </form>
+            </section>
+""
+
+            <!-- ===== TRADE HISTORY ===== -->
+            <section id="trade-history" class="page">
+                <div class="page-header">
+                    <h2>Trade History</h2>
+                    <div class="page-header-actions">
+                        <button id="export-data" class="btn-secondary btn-sm"><i class="fas fa-download"></i> Export</button>
+                        <button id="import-data" class="btn-secondary btn-sm"><i class="fas fa-upload"></i> Import</button>
+                        <input type="file" id="import-file" accept=".json" style="display:none;">
+                    </div>
+                </div>
+                <div class="filters-bar">
+                    <input type="text" id="search-trades" placeholder="Search..." class="filter-input filter-search">
+                    <input type="date" id="date-from" class="filter-input">
+                    <input type="date" id="date-to" class="filter-input">
+                    <select id="filter-asset-class" class="filter-input"><option value="">All Classes</option><option value="stocks">Stocks</option><option value="options">Options</option><option value="futures">Futures</option><option value="crypto">Crypto</option></select>
+                    <select id="filter-setup" class="filter-input"><option value="">All Setups</option></select>
+                    <select id="filter-result" class="filter-input"><option value="">All Results</option><option value="win">Wins</option><option value="loss">Losses</option><option value="breakeven">Breakeven</option></select>
+                </div>
+                <div class="card"><div class="card-body card-body-flush">
+                    <table id="trades-table">
+                        <thead><tr>
+                            <th data-sort="entryDate">Date</th><th data-sort="ticker">Ticker</th><th data-sort="assetClass">Class</th><th data-sort="direction">Dir</th><th>Entries</th><th>Exits</th><th data-sort="netPnl">Net P&amp;L</th><th data-sort="rr">R:R</th><th data-sort="setup">Setup</th><th>Tags</th><th>Actions</th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div></div>
+            </section>
+
+            <!-- ===== JOURNAL ===== -->
+            <section id="journal" class="page">
+                <div class="page-header"><h2>Daily Journal</h2>
+                    <div class="journal-date-nav">
+                        <button id="journal-prev-day" class="btn-icon" aria-label="Previous day"><i class="fas fa-chevron-left"></i></button>
+                        <input type="date" id="journal-date">
+                        <button id="journal-next-day" class="btn-icon" aria-label="Next day"><i class="fas fa-chevron-right"></i></button>
+                        <button id="journal-today-btn" class="btn-secondary btn-sm">Today</button>
+                    </div>
+                </div>
+                <div class="journal-layout">
+                    <div class="journal-editor-panel card">
+                        <div class="journal-tabs">
+                            <button class="journal-tab active" data-section="premarket">Pre-Market</button>
+                            <button class="journal-tab" data-section="review">EOD Review</button>
+                            <button class="journal-tab" data-section="lessons">Lessons</button>
+                            <button class="journal-tab" data-section="freeform">Notes</button>
+                        </div>
+                        <div class="journal-editor-toolbar">
+                            <button type="button" class="toolbar-btn" data-md="**" title="Bold"><i class="fas fa-bold"></i></button>
+                            <button type="button" class="toolbar-btn" data-md="*" title="Italic"><i class="fas fa-italic"></i></button>
+                            <button type="button" class="toolbar-btn" data-md="~~" title="Strike"><i class="fas fa-strikethrough"></i></button>
+                            <span class="toolbar-sep"></span>
+                            <button type="button" class="toolbar-btn" data-md-line="# " title="Heading"><i class="fas fa-heading"></i></button>
+                            <button type="button" class="toolbar-btn" data-md-line="- " title="List"><i class="fas fa-list-ul"></i></button>
+                            <button type="button" class="toolbar-btn" data-md-line="1. " title="Ordered"><i class="fas fa-list-ol"></i></button>
+                            <button type="button" class="toolbar-btn" data-md-line="> " title="Quote"><i class="fas fa-quote-right"></i></button>
+                            <button type="button" class="toolbar-btn" data-md-line="- [ ] " title="Task"><i class="fas fa-tasks"></i></button>
+                            <span class="toolbar-sep"></span>
+                            <button type="button" class="toolbar-btn" data-md="`" title="Code"><i class="fas fa-code"></i></button>
+                            <button type="button" class="toolbar-btn" data-md-block="```" title="Block"><i class="fas fa-file-code"></i></button>
+                            <span class="toolbar-sep"></span>
+                            <button type="button" id="journal-toggle-preview" class="toolbar-btn" title="Preview"><i class="fas fa-eye"></i></button>
+                        </div>
+                        <textarea id="journal-editor" class="journal-textarea" placeholder="Write in Markdown..."></textarea>
+                        <div id="journal-preview" class="journal-preview" style="display:none;"></div>
+                        <div class="journal-actions">
+                            <button id="journal-save-btn" class="btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
+                            <span id="journal-autosave-status" class="autosave-status"></span>
+                        </div>
+                    </div>
+                    <div class="journal-sidebar card">
+                        <div class="card-header"><h3>Recent Entries</h3></div>
+                        <div id="journal-entries-list" class="journal-entries-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== ANALYTICS ===== -->
+            <section id="analytics" class="page">
+                <div class="page-header"><h2>Analytics</h2></div>
+
+                <!-- Hero metrics banner -->
+                <div class="analytics-hero">
+                    <div class="ah-card ah-primary">
+                        <i class="fas fa-bullseye"></i>
+                        <div><span class="ah-label">Expectancy</span><span class="ah-value" id="metric-expectancy">$0.00</span></div>
+                    </div>
+                    <div class="ah-card">
+                        <i class="fas fa-divide"></i>
+                        <div><span class="ah-label">Profit Factor</span><span class="ah-value" id="metric-profit-factor">0.00</span></div>
+                    </div>
+                    <div class="ah-card">
+                        <i class="fas fa-chart-simple"></i>
+                        <div><span class="ah-label">Sharpe Ratio</span><span class="ah-value" id="metric-sharpe">0.00</span></div>
+                    </div>
+                </div>
+
+                <!-- Secondary metrics row -->
+                <div class="analytics-metrics-row">
+                    <div class="am-pill am-loss"><i class="fas fa-arrow-trend-down"></i><span>Max DD</span><strong id="metric-max-dd">$0.00</strong></div>
+                    <div class="am-pill"><i class="fas fa-rotate-right"></i><span>Recovery</span><strong id="metric-dd-recovery">—</strong></div>
+                    <div class="am-pill am-win"><i class="fas fa-fire"></i><span>Win Streak</span><strong id="metric-win-streak">0</strong></div>
+                    <div class="am-pill am-loss"><i class="fas fa-snowflake"></i><span>Loss Streak</span><strong id="metric-loss-streak">0</strong></div>
+                    <div class="am-pill am-win"><i class="fas fa-arrow-up"></i><span>Avg Win</span><strong id="metric-avg-win">$0.00</strong></div>
+                    <div class="am-pill am-loss"><i class="fas fa-arrow-down"></i><span>Avg Loss</span><strong id="metric-avg-loss">$0.00</strong></div>
+                </div>
+
+                <!-- Bento grid: equity + heatmap full-width, then 2-col -->
+                <div class="analytics-bento">
+                    <!-- Row 1: Equity curve full width -->
+                    <div class="card bento-full">
+                        <div class="card-header"><h3><i class="fas fa-chart-line"></i> Equity Curve &amp; Drawdown</h3></div>
+                        <div class="card-body"><canvas id="equity-dd-chart"></canvas></div>
+                    </div>
+
+                    <!-- Row 2: Heatmap full width -->
+                    <div class="card bento-full">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-days"></i> P&amp;L Calendar</h3>
+                            <div class="heatmap-controls">
+                                <button id="heatmap-prev" class="btn-icon btn-sm"><i class="fas fa-chevron-left"></i></button>
+                                <span id="heatmap-year"></span>
+                                <button id="heatmap-next" class="btn-icon btn-sm"><i class="fas fa-chevron-right"></i></button>
                             </div>
                         </div>
-                    </div>
-                    <button type="button" id="add-entry-btn" class="btn-secondary btn-sm">
-                        <i class="fas fa-plus"></i> Add Entry
-                    </button>
-
-                    <div id="exits-container" style="margin-top:1rem;">
-                        <div class="partial-row" data-index="0">
-                            <div class="form-grid form-grid-4">
-                                <div class="form-group">
-                                    <label>Exit Date</label>
-                                    <input type="datetime-local" name="exit-date-0" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Exit Price</label>
-                                    <input type="number" name="exit-price-0" step="0.01" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Shares/Qty</label>
-                                    <input type="number" name="exit-qty-0" step="any" required>
-                                </div>
-                                <div class="form-group form-group-btn">
-                                    <button type="button" class="btn-icon btn-remove-exit" title="Remove" style="visibility:hidden;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="card-body">
+                            <div id="calendar-heatmap" class="calendar-heatmap"></div>
+                            <div class="heatmap-legend"><span>Loss</span><span class="heatmap-swatch" style="background:#ef4444;"></span><span class="heatmap-swatch" style="background:#fca5a5;"></span><span class="heatmap-swatch" style="background:#e5e7eb;"></span><span class="heatmap-swatch" style="background:#86efac;"></span><span class="heatmap-swatch" style="background:#22c55e;"></span><span>Profit</span></div>
                         </div>
                     </div>
-                    <button type="button" id="add-exit-btn" class="btn-secondary btn-sm">
-                        <i class="fas fa-plus"></i> Add Exit
-                    </button>
-                </fieldset>
 
-                <!-- Section: Risk Management -->
-                <fieldset class="form-section">
-                    <legend>Risk Management</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="stop-loss">Stop Loss Price</label>
-                            <input type="number" id="stop-loss" name="stop-loss" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label for="take-profit">Take Profit Price</label>
-                            <input type="number" id="take-profit" name="take-profit" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label for="fees">Fees / Commissions ($)</label>
-                            <input type="number" id="fees" name="fees" step="0.01" value="0">
-                        </div>
+                    <!-- Row 3: 2-col — Setup + Ticker -->
+                    <div class="card bento-half">
+                        <div class="card-header"><h3><i class="fas fa-crosshairs"></i> Setup Comparison</h3></div>
+                        <div class="card-body"><canvas id="setup-comparison-chart"></canvas></div>
                     </div>
-                </fieldset>
-
-                <!-- Section: Setup & Tags -->
-                <fieldset class="form-section">
-                    <legend>Setup &amp; Tags</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="setup">Setup Type</label>
-                            <select id="setup" name="setup" required>
-                                <!-- Populated dynamically from storage -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Tags / Labels</label>
-                            <div id="tags-container" class="tags-container">
-                                <!-- Populated dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-grid" style="margin-top:0.75rem;">
-                        <div class="form-group">
-                            <label for="new-setup-tag">Add Custom Setup</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="new-setup-tag" placeholder="New setup name...">
-                                <button type="button" id="add-setup-tag-btn" class="btn-secondary btn-sm">Add</button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="new-custom-tag">Add Custom Tag</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="new-custom-tag" placeholder="New tag name...">
-                                <button type="button" id="add-custom-tag-btn" class="btn-secondary btn-sm">Add</button>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Section: Psychology -->
-                <fieldset class="form-section">
-                    <legend>Psychology</legend>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="emotional-state">Emotional State at Entry</label>
-                            <select id="emotional-state" name="emotional-state">
-                                <option value="">-- Select --</option>
-                                <option value="calm">😌 Calm / Focused</option>
-                                <option value="confident">💪 Confident</option>
-                                <option value="anxious">😰 Anxious</option>
-                                <option value="fearful">😨 Fearful</option>
-                                <option value="greedy">🤑 Greedy</option>
-                                <option value="revenge">😤 Revenge Trading</option>
-                                <option value="fomo">😱 FOMO</option>
-                                <option value="bored">😐 Bored</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="confidence">Confidence Level</label>
-                            <div class="confidence-slider">
-                                <input type="range" id="confidence" name="confidence" min="1" max="10" value="5">
-                                <span id="confidence-value" class="slider-value">5</span>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Section: Screenshots -->
-                <fieldset class="form-section">
-                    <legend>Screenshots</legend>
-                    <div class="form-group">
-                        <label for="screenshot-input">Attach Chart Screenshots</label>
-                        <input type="file" id="screenshot-input" accept="image/*" multiple>
-                        <div id="screenshot-preview" class="screenshot-preview"></div>
-                    </div>
-                </fieldset>
-
-                <!-- Section: Notes -->
-                <fieldset class="form-section">
-                    <legend>Notes</legend>
-                    <div class="form-group full-width">
-                        <textarea id="notes" name="notes" rows="4" placeholder="Trade rationale, lessons learned..."></textarea>
-                    </div>
-                </fieldset>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Save Trade</button>
-                    <button type="reset" class="btn-secondary">Reset</button>
-                </div>
-            </form>
-        </section>
-
-        <!-- Trade History Page -->
-        <section id="trade-history" class="page">
-            <h2>Trade History</h2>
-            <div class="data-management">
-                <div class="data-management-group">
-                    <h3>Data Management</h3>
-                    <button id="export-data" class="btn-secondary">
-                        <i class="fas fa-download"></i> Export Data
-                    </button>
-                    <button id="import-data" class="btn-secondary">
-                        <i class="fas fa-upload"></i> Import Data
-                    </button>
-                    <input type="file" id="import-file" accept=".json" style="display: none;">
-                </div>
-            </div>
-            <div class="filters">
-                <input type="text" id="search-trades" placeholder="Search trades...">
-                <div class="filter-group">
-                    <input type="date" id="date-from">
-                    <input type="date" id="date-to">
-                    <select id="filter-asset-class">
-                        <option value="">All Classes</option>
-                        <option value="stocks">Stocks</option>
-                        <option value="options">Options</option>
-                        <option value="futures">Futures</option>
-                        <option value="crypto">Crypto</option>
-                    </select>
-                    <select id="filter-setup">
-                        <option value="">All Setups</option>
-                    </select>
-                    <select id="filter-result">
-                        <option value="">All Results</option>
-                        <option value="win">Wins</option>
-                        <option value="loss">Losses</option>
-                        <option value="breakeven">Breakeven</option>
-                    </select>
-                </div>
-            </div>
-            <div class="table-container">
-                <table id="trades-table">
-                    <thead>
-                        <tr>
-                            <th data-sort="entryDate">Date</th>
-                            <th data-sort="ticker">Ticker</th>
-                            <th data-sort="assetClass">Class</th>
-                            <th data-sort="direction">Dir</th>
-                            <th>Entries</th>
-                            <th>Exits</th>
-                            <th data-sort="netPnl">Net P&amp;L</th>
-                            <th data-sort="rr">R:R</th>
-                            <th data-sort="setup">Setup</th>
-                            <th>Tags</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Journal Page -->
-        <section id="journal" class="page">
-            <div class="journal-header">
-                <h2>Daily Journal</h2>
-                <div class="journal-date-nav">
-                    <button id="journal-prev-day" class="btn-icon" aria-label="Previous day"><i class="fas fa-chevron-left"></i></button>
-                    <input type="date" id="journal-date">
-                    <button id="journal-next-day" class="btn-icon" aria-label="Next day"><i class="fas fa-chevron-right"></i></button>
-                    <button id="journal-today-btn" class="btn-secondary btn-sm">Today</button>
-                </div>
-            </div>
-
-            <div class="journal-layout">
-                <!-- Editor panel -->
-                <div class="journal-editor-panel">
-                    <div class="journal-tabs">
-                        <button class="journal-tab active" data-section="premarket">Pre-Market Plan</button>
-                        <button class="journal-tab" data-section="review">End-of-Day Review</button>
-                        <button class="journal-tab" data-section="lessons">Lessons Learned</button>
-                        <button class="journal-tab" data-section="freeform">Free Notes</button>
+                    <div class="card bento-half">
+                        <div class="card-header"><h3><i class="fas fa-tags"></i> Ticker Performance</h3></div>
+                        <div class="card-body"><canvas id="ticker-comparison-chart"></canvas></div>
                     </div>
 
-                    <div class="journal-editor-toolbar">
-                        <button type="button" class="toolbar-btn" data-md="**" title="Bold"><i class="fas fa-bold"></i></button>
-                        <button type="button" class="toolbar-btn" data-md="*" title="Italic"><i class="fas fa-italic"></i></button>
-                        <button type="button" class="toolbar-btn" data-md="~~" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
-                        <span class="toolbar-sep"></span>
-                        <button type="button" class="toolbar-btn" data-md-line="# " title="Heading"><i class="fas fa-heading"></i></button>
-                        <button type="button" class="toolbar-btn" data-md-line="- " title="Bullet list"><i class="fas fa-list-ul"></i></button>
-                        <button type="button" class="toolbar-btn" data-md-line="1. " title="Numbered list"><i class="fas fa-list-ol"></i></button>
-                        <button type="button" class="toolbar-btn" data-md-line="> " title="Blockquote"><i class="fas fa-quote-right"></i></button>
-                        <button type="button" class="toolbar-btn" data-md-line="- [ ] " title="Checklist"><i class="fas fa-tasks"></i></button>
-                        <span class="toolbar-sep"></span>
-                        <button type="button" class="toolbar-btn" data-md="`" title="Inline code"><i class="fas fa-code"></i></button>
-                        <button type="button" class="toolbar-btn" data-md-block="```" title="Code block"><i class="fas fa-file-code"></i></button>
-                        <span class="toolbar-sep"></span>
-                        <button type="button" id="journal-toggle-preview" class="toolbar-btn" title="Toggle preview"><i class="fas fa-eye"></i></button>
+                    <!-- Row 4: 3-col — Time analysis -->
+                    <div class="card bento-third">
+                        <div class="card-header"><h3><i class="fas fa-calendar-week"></i> Day of Week</h3></div>
+                        <div class="card-body"><canvas id="dow-chart"></canvas></div>
+                    </div>
+                    <div class="card bento-third">
+                        <div class="card-header"><h3><i class="fas fa-clock"></i> By Hour</h3></div>
+                        <div class="card-body"><canvas id="hour-chart"></canvas></div>
+                    </div>
+                    <div class="card bento-third">
+                        <div class="card-header"><h3><i class="fas fa-globe"></i> Sessions</h3></div>
+                        <div class="card-body"><canvas id="session-chart"></canvas></div>
                     </div>
 
-                    <textarea id="journal-editor" class="journal-textarea" placeholder="Write your thoughts in Markdown..."></textarea>
-                    <div id="journal-preview" class="journal-preview" style="display:none;"></div>
-
-                    <div class="journal-actions">
-                        <button id="journal-save-btn" class="btn-primary"><i class="fas fa-save"></i> Save Entry</button>
-                        <span id="journal-autosave-status" class="autosave-status"></span>
+                    <!-- Row 5: 3-col — Distribution -->
+                    <div class="card bento-third">
+                        <div class="card-header"><h3><i class="fas fa-chart-pie"></i> Win/Loss</h3></div>
+                        <div class="card-body"><canvas id="win-loss-chart"></canvas></div>
+                    </div>
+                    <div class="card bento-third">
+                        <div class="card-header"><h3><i class="fas fa-chart-bar"></i> Monthly</h3></div>
+                        <div class="card-body"><canvas id="monthly-performance-chart"></canvas></div>
+                    </div>
+                    <div class="card bento-third">
+                        <div class="card-header"><h3><i class="fas fa-bolt"></i> Streaks</h3></div>
+                        <div class="card-body"><canvas id="streak-chart"></canvas></div>
                     </div>
                 </div>
+            </section>
+        </div><!-- /main-wrap -->
+    </div><!-- /app-shell -->
 
-                <!-- Sidebar: recent entries list -->
-                <div class="journal-sidebar">
-                    <h3>Recent Entries</h3>
-                    <div id="journal-entries-list" class="journal-entries-list"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Analytics Page -->
-        <section id="analytics" class="page">
-            <h2>Analytics</h2>
-
-            <!-- Key Metrics Cards -->
-            <div class="stats-grid analytics-metrics">
-                <div class="stat-card"><h3>Expectancy</h3><p id="metric-expectancy">$0.00</p></div>
-                <div class="stat-card"><h3>Profit Factor</h3><p id="metric-profit-factor">0.00</p></div>
-                <div class="stat-card"><h3>Sharpe Ratio</h3><p id="metric-sharpe">0.00</p></div>
-                <div class="stat-card"><h3>Max Drawdown</h3><p id="metric-max-dd">$0.00</p></div>
-                <div class="stat-card"><h3>DD Recovery</h3><p id="metric-dd-recovery">— trades</p></div>
-                <div class="stat-card"><h3>Best Streak</h3><p id="metric-win-streak">0</p></div>
-                <div class="stat-card"><h3>Worst Streak</h3><p id="metric-loss-streak">0</p></div>
-                <div class="stat-card"><h3>Avg Win</h3><p id="metric-avg-win">$0.00</p></div>
-                <div class="stat-card"><h3>Avg Loss</h3><p id="metric-avg-loss">$0.00</p></div>
-            </div>
-
-            <!-- Equity Curve + Drawdown -->
-            <div class="chart-container chart-wide">
-                <h3>Equity Curve &amp; Drawdown</h3>
-                <canvas id="equity-dd-chart"></canvas>
-            </div>
-
-            <!-- Calendar Heatmap -->
-            <div class="chart-container chart-wide">
-                <h3>P&amp;L Calendar Heatmap</h3>
-                <div class="heatmap-controls">
-                    <button id="heatmap-prev" class="btn-icon btn-sm"><i class="fas fa-chevron-left"></i></button>
-                    <span id="heatmap-year"></span>
-                    <button id="heatmap-next" class="btn-icon btn-sm"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <div id="calendar-heatmap" class="calendar-heatmap"></div>
-                <div class="heatmap-legend">
-                    <span>Loss</span>
-                    <span class="heatmap-swatch" style="background:#ef4444;"></span>
-                    <span class="heatmap-swatch" style="background:#fca5a5;"></span>
-                    <span class="heatmap-swatch" style="background:#e5e7eb;"></span>
-                    <span class="heatmap-swatch" style="background:#86efac;"></span>
-                    <span class="heatmap-swatch" style="background:#22c55e;"></span>
-                    <span>Profit</span>
-                </div>
-            </div>
-
-            <div class="analytics-grid">
-                <!-- Setup Comparison -->
-                <div class="chart-container">
-                    <h3>Setup Comparison</h3>
-                    <canvas id="setup-comparison-chart"></canvas>
-                </div>
-                <!-- Ticker Comparison -->
-                <div class="chart-container">
-                    <h3>Ticker Performance</h3>
-                    <canvas id="ticker-comparison-chart"></canvas>
-                </div>
-                <!-- Day of Week -->
-                <div class="chart-container">
-                    <h3>Performance by Day of Week</h3>
-                    <canvas id="dow-chart"></canvas>
-                </div>
-                <!-- Time of Day -->
-                <div class="chart-container">
-                    <h3>Performance by Hour</h3>
-                    <canvas id="hour-chart"></canvas>
-                </div>
-                <!-- Session Performance -->
-                <div class="chart-container">
-                    <h3>Session Performance (Asia / London / NY)</h3>
-                    <canvas id="session-chart"></canvas>
-                </div>
-                <!-- Win/Loss Distribution -->
-                <div class="chart-container">
-                    <h3>Win/Loss Distribution</h3>
-                    <canvas id="win-loss-chart"></canvas>
-                </div>
-                <!-- Monthly Performance -->
-                <div class="chart-container">
-                    <h3>Monthly Performance</h3>
-                    <canvas id="monthly-performance-chart"></canvas>
-                </div>
-                <!-- Streak Chart -->
-                <div class="chart-container">
-                    <h3>Win/Loss Streaks</h3>
-                    <canvas id="streak-chart"></canvas>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Trade Detail Modal -->
     <div id="trade-detail-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <button class="modal-close" id="modal-close">&times;</button>
-            <div id="modal-body"></div>
-        </div>
+        <div class="modal-content"><button class="modal-close" id="modal-close">&times;</button><div id="modal-body"></div></div>
     </div>
-
     <div id="toast" class="toast"></div>
     <script type="module" src="js/main.js"></script>
 </body>

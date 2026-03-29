@@ -9,21 +9,46 @@ class App {
     }
 
     async start() {
-        // Wait for storage to finish loading server data before touching the UI
         await storage.ready;
 
-        // Refresh trade data now that storage is ready
         tradeManager.trades = storage.getTrades();
         tradeManager.setupTags = storage.getSetupTags();
 
         this.initializeTheme();
+        this.initializeSidebar();
         this.initializeNavigation();
         this.initializeDataManagement();
+        this.updateGreeting();
         this.showPage(this.currentPage);
 
-        // Initial UI render
         tradeManager.updateUI();
         journalManager.init();
+    }
+
+    // --- Sidebar collapse ---
+
+    initializeSidebar() {
+        const btn = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        if (btn && sidebar) {
+            // Restore saved state
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+            btn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+            });
+        }
+    }
+
+    // --- Greeting ---
+
+    updateGreeting() {
+        const el = document.getElementById('greeting-time');
+        if (!el) return;
+        const h = new Date().getHours();
+        el.textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
     }
 
     // --- Theme ---
