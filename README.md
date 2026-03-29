@@ -27,7 +27,7 @@ A comprehensive trading journal application built with modern web technologies t
 trade-journal/
 ├── index.html            # Main application entry point
 ├── server.js             # Express server for data persistence
-├── nginx.conf            # Nginx configuration for production
+├── nginx.conf            # Nginx reverse-proxy config (optional, for production)
 ├── Dockerfile            # Docker configuration
 ├── package.json          # Project dependencies
 ├── /css
@@ -76,7 +76,7 @@ trade-journal/
 
 2. **Run the container**
    ```bash
-   docker run -p 3000:80 trade-journal
+   docker run -p 3000:3000 trade-journal
    ```
    The app will be available at `http://localhost:3000`
 
