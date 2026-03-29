@@ -14,7 +14,8 @@ class Storage {
         ];
 
         this.DATA_FILE = 'trading_journal_data.json';
-        this.initializeStorage();
+        // Expose a promise that resolves when server data is loaded
+        this.ready = this.initializeStorage();
     }
 
     async initializeStorage() {
@@ -26,11 +27,11 @@ class Storage {
                 this.loadData(data);
             } else {
                 // If no data exists, initialize with defaults
-                this.initializeWithDefaults();
+                await this.initializeWithDefaults();
             }
         } catch (error) {
             console.log('Error loading data, initializing with defaults', error);
-            this.initializeWithDefaults();
+            await this.initializeWithDefaults();
         }
     }
 
