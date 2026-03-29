@@ -78,8 +78,20 @@ body {
     border-bottom: 1px solid var(--light-border);
 }
 
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.sidebar-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+}
+
 .sidebar-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
     background: var(--light-gradient);
     -webkit-background-clip: text;
