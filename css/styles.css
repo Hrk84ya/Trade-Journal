@@ -1210,3 +1210,103 @@ tr:hover {
         flex-wrap: nowrap;
     }
 }
+
+/* ===== Advanced Analytics Styles ===== */
+
+.analytics-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.analytics-metrics .stat-card p {
+    font-size: 1.4rem;
+}
+
+.chart-wide {
+    grid-column: 1 / -1;
+}
+
+/* Calendar Heatmap */
+.heatmap-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--light-text);
+}
+
+.calendar-heatmap {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.heatmap-months {
+    display: grid;
+    grid-template-columns: repeat(53, 14px);
+    gap: 2px;
+    margin-left: 32px;
+    margin-bottom: 4px;
+    font-size: 0.7rem;
+    color: var(--light-text-secondary);
+}
+
+.heatmap-grid {
+    display: flex;
+    gap: 4px;
+}
+
+.heatmap-day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.65rem;
+    color: var(--light-text-secondary);
+    padding-right: 4px;
+    min-width: 28px;
+}
+
+.heatmap-day-labels span {
+    height: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.heatmap-cells {
+    display: flex;
+    gap: 2px;
+}
+
+.heatmap-week {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.heatmap-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    cursor: default;
+}
+
+.heatmap-cell:hover {
+    outline: 1px solid var(--light-text-secondary);
+    outline-offset: -1px;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--light-text-secondary);
+}
+
+.heatmap-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    display: inline-block;
+}

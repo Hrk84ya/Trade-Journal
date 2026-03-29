@@ -463,22 +463,86 @@
         <!-- Analytics Page -->
         <section id="analytics" class="page">
             <h2>Analytics</h2>
+
+            <!-- Key Metrics Cards -->
+            <div class="stats-grid analytics-metrics">
+                <div class="stat-card"><h3>Expectancy</h3><p id="metric-expectancy">$0.00</p></div>
+                <div class="stat-card"><h3>Profit Factor</h3><p id="metric-profit-factor">0.00</p></div>
+                <div class="stat-card"><h3>Sharpe Ratio</h3><p id="metric-sharpe">0.00</p></div>
+                <div class="stat-card"><h3>Max Drawdown</h3><p id="metric-max-dd">$0.00</p></div>
+                <div class="stat-card"><h3>DD Recovery</h3><p id="metric-dd-recovery">— trades</p></div>
+                <div class="stat-card"><h3>Best Streak</h3><p id="metric-win-streak">0</p></div>
+                <div class="stat-card"><h3>Worst Streak</h3><p id="metric-loss-streak">0</p></div>
+                <div class="stat-card"><h3>Avg Win</h3><p id="metric-avg-win">$0.00</p></div>
+                <div class="stat-card"><h3>Avg Loss</h3><p id="metric-avg-loss">$0.00</p></div>
+            </div>
+
+            <!-- Equity Curve + Drawdown -->
+            <div class="chart-container chart-wide">
+                <h3>Equity Curve &amp; Drawdown</h3>
+                <canvas id="equity-dd-chart"></canvas>
+            </div>
+
+            <!-- Calendar Heatmap -->
+            <div class="chart-container chart-wide">
+                <h3>P&amp;L Calendar Heatmap</h3>
+                <div class="heatmap-controls">
+                    <button id="heatmap-prev" class="btn-icon btn-sm"><i class="fas fa-chevron-left"></i></button>
+                    <span id="heatmap-year"></span>
+                    <button id="heatmap-next" class="btn-icon btn-sm"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div id="calendar-heatmap" class="calendar-heatmap"></div>
+                <div class="heatmap-legend">
+                    <span>Loss</span>
+                    <span class="heatmap-swatch" style="background:#ef4444;"></span>
+                    <span class="heatmap-swatch" style="background:#fca5a5;"></span>
+                    <span class="heatmap-swatch" style="background:#e5e7eb;"></span>
+                    <span class="heatmap-swatch" style="background:#86efac;"></span>
+                    <span class="heatmap-swatch" style="background:#22c55e;"></span>
+                    <span>Profit</span>
+                </div>
+            </div>
+
             <div class="analytics-grid">
+                <!-- Setup Comparison -->
                 <div class="chart-container">
-                    <h3>Cumulative P&amp;L</h3>
-                    <canvas id="cumulative-pnl-chart"></canvas>
+                    <h3>Setup Comparison</h3>
+                    <canvas id="setup-comparison-chart"></canvas>
                 </div>
+                <!-- Ticker Comparison -->
                 <div class="chart-container">
-                    <h3>Setup Performance</h3>
-                    <canvas id="setup-performance-chart"></canvas>
+                    <h3>Ticker Performance</h3>
+                    <canvas id="ticker-comparison-chart"></canvas>
                 </div>
+                <!-- Day of Week -->
+                <div class="chart-container">
+                    <h3>Performance by Day of Week</h3>
+                    <canvas id="dow-chart"></canvas>
+                </div>
+                <!-- Time of Day -->
+                <div class="chart-container">
+                    <h3>Performance by Hour</h3>
+                    <canvas id="hour-chart"></canvas>
+                </div>
+                <!-- Session Performance -->
+                <div class="chart-container">
+                    <h3>Session Performance (Asia / London / NY)</h3>
+                    <canvas id="session-chart"></canvas>
+                </div>
+                <!-- Win/Loss Distribution -->
                 <div class="chart-container">
                     <h3>Win/Loss Distribution</h3>
                     <canvas id="win-loss-chart"></canvas>
                 </div>
+                <!-- Monthly Performance -->
                 <div class="chart-container">
                     <h3>Monthly Performance</h3>
                     <canvas id="monthly-performance-chart"></canvas>
+                </div>
+                <!-- Streak Chart -->
+                <div class="chart-container">
+                    <h3>Win/Loss Streaks</h3>
+                    <canvas id="streak-chart"></canvas>
                 </div>
             </div>
         </section>
