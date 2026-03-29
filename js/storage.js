@@ -4,6 +4,7 @@ class Storage {
             TRADES: 'trades',
             SETUP_TAGS: 'setup_tags',
             CUSTOM_TAGS: 'custom_tags',
+            JOURNAL: 'journal_entries',
             THEME: 'theme'
         };
 
@@ -41,6 +42,7 @@ class Storage {
         localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify([]));
         localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(this.DEFAULT_SETUP_TAGS));
         localStorage.setItem(this.STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(this.DEFAULT_CUSTOM_TAGS));
+        localStorage.setItem(this.STORAGE_KEYS.JOURNAL, JSON.stringify({}));
         localStorage.setItem(this.STORAGE_KEYS.THEME, 'light');
         try { await this.saveToServer(); }
         catch (error) { console.error('Failed to initialize with defaults on server:', error); }
@@ -50,6 +52,7 @@ class Storage {
         if (data.trades) localStorage.setItem(this.STORAGE_KEYS.TRADES, JSON.stringify(data.trades));
         if (data.setupTags) localStorage.setItem(this.STORAGE_KEYS.SETUP_TAGS, JSON.stringify(data.setupTags));
         if (data.customTags) localStorage.setItem(this.STORAGE_KEYS.CUSTOM_TAGS, JSON.stringify(data.customTags));
+        if (data.journal) localStorage.setItem(this.STORAGE_KEYS.JOURNAL, JSON.stringify(data.journal));
         if (data.theme) localStorage.setItem(this.STORAGE_KEYS.THEME, data.theme);
     }
 
@@ -58,6 +61,7 @@ class Storage {
             trades: this.getTrades(),
             setupTags: this.getSetupTags(),
             customTags: this.getCustomTags(),
+            journal: this.getAllJournalEntries(),
             theme: this.getTheme()
         };
         const response = await fetch('/trading_journal_data.json', {
@@ -132,6 +136,37 @@ class Storage {
         await this.saveToServer();
     }
 
+    // --- Journal entries ---
+    // Stored as an object keyed by date string (YYYY-MM-DD)
+    // Each entry: { premarket, review, lessons, freeform, updatedAt }
+
+    getAllJournalEntries() {
+        return JSON.parse(localStorage.getItem(this.STORAGE_KEYS.JOURNAL)) || {};
+    }
+
+    getJournalEntry(dateStr) {
+        const all = this.getAllJournalEntries();
+        return all[dateStr] || null;
+    }
+
+    async saveJournalEntry(dateStr, entry) {
+        const all = this.getAllJournalEntries();
+        all[dateStr] = { ...entry, updatedAt: new Date().toISOString() };
+        localStorage.setItem(this.STORAGE_KEYS.JOURNAL, JSON.stringify(all));
+        await this.saveToServer();
+    }
+
+    async deleteJournalEntry(dateStr) {
+        const all = this.getAllJournalEntries();
+        delete all[dateStr];
+        localStorage.setItem(this.STORAGE_KEYS.JOURNAL, JSON.stringify(all));
+        await this.saveToServer();
+    }
+
+    getJournalDates() {
+        return Object.keys(this.getAllJournalEntries()).sort().reverse();
+    }
+
     // --- Theme ---
 
     async setTheme(theme) {
@@ -152,6 +187,7 @@ class Storage {
             trades: this.getTrades(),
             setupTags: this.getSetupTags(),
             customTags: this.getCustomTags(),
+            journal: this.getAllJournalEntries(),
             theme: this.getTheme()
         }, null, 2);
     }
@@ -165,6 +201,7 @@ class Storage {
                 trades: this.getTrades(),
                 setupTags: this.getSetupTags(),
                 customTags: this.getCustomTags(),
+                journal: this.getAllJournalEntries(),
                 theme: this.getTheme()
             };
             try {

@@ -1,6 +1,7 @@
 import storage from './storage.js';
 import tradeManager from './trades.js';
 import chartManager from './charts.js';
+import journalManager from './journal.js';
 
 class App {
     constructor() {
@@ -22,6 +23,7 @@ class App {
 
         // Initial UI render
         tradeManager.updateUI();
+        journalManager.init();
     }
 
     // --- Theme ---
@@ -91,6 +93,9 @@ class App {
 
             if (pageId === 'analytics') {
                 chartManager.updateAllCharts();
+            }
+            if (pageId === 'journal') {
+                journalManager.renderEntriesList();
             }
         }
     }

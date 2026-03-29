@@ -6,6 +6,8 @@
     <title>Trading Journal App</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="light-theme">
@@ -26,6 +28,9 @@
             </li>
             <li data-page="trade-history">
                 <i class="fas fa-history"></i><span>Trade History</span>
+            </li>
+            <li data-page="journal">
+                <i class="fas fa-book"></i><span>Journal</span>
             </li>
             <li data-page="analytics">
                 <i class="fas fa-chart-pie"></i><span>Analytics</span>
@@ -396,6 +401,62 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </section>
+
+        <!-- Journal Page -->
+        <section id="journal" class="page">
+            <div class="journal-header">
+                <h2>Daily Journal</h2>
+                <div class="journal-date-nav">
+                    <button id="journal-prev-day" class="btn-icon" aria-label="Previous day"><i class="fas fa-chevron-left"></i></button>
+                    <input type="date" id="journal-date">
+                    <button id="journal-next-day" class="btn-icon" aria-label="Next day"><i class="fas fa-chevron-right"></i></button>
+                    <button id="journal-today-btn" class="btn-secondary btn-sm">Today</button>
+                </div>
+            </div>
+
+            <div class="journal-layout">
+                <!-- Editor panel -->
+                <div class="journal-editor-panel">
+                    <div class="journal-tabs">
+                        <button class="journal-tab active" data-section="premarket">Pre-Market Plan</button>
+                        <button class="journal-tab" data-section="review">End-of-Day Review</button>
+                        <button class="journal-tab" data-section="lessons">Lessons Learned</button>
+                        <button class="journal-tab" data-section="freeform">Free Notes</button>
+                    </div>
+
+                    <div class="journal-editor-toolbar">
+                        <button type="button" class="toolbar-btn" data-md="**" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button type="button" class="toolbar-btn" data-md="*" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button type="button" class="toolbar-btn" data-md="~~" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                        <span class="toolbar-sep"></span>
+                        <button type="button" class="toolbar-btn" data-md-line="# " title="Heading"><i class="fas fa-heading"></i></button>
+                        <button type="button" class="toolbar-btn" data-md-line="- " title="Bullet list"><i class="fas fa-list-ul"></i></button>
+                        <button type="button" class="toolbar-btn" data-md-line="1. " title="Numbered list"><i class="fas fa-list-ol"></i></button>
+                        <button type="button" class="toolbar-btn" data-md-line="> " title="Blockquote"><i class="fas fa-quote-right"></i></button>
+                        <button type="button" class="toolbar-btn" data-md-line="- [ ] " title="Checklist"><i class="fas fa-tasks"></i></button>
+                        <span class="toolbar-sep"></span>
+                        <button type="button" class="toolbar-btn" data-md="`" title="Inline code"><i class="fas fa-code"></i></button>
+                        <button type="button" class="toolbar-btn" data-md-block="```" title="Code block"><i class="fas fa-file-code"></i></button>
+                        <span class="toolbar-sep"></span>
+                        <button type="button" id="journal-toggle-preview" class="toolbar-btn" title="Toggle preview"><i class="fas fa-eye"></i></button>
+                    </div>
+
+                    <textarea id="journal-editor" class="journal-textarea" placeholder="Write your thoughts in Markdown..."></textarea>
+                    <div id="journal-preview" class="journal-preview" style="display:none;"></div>
+
+                    <div class="journal-actions">
+                        <button id="journal-save-btn" class="btn-primary"><i class="fas fa-save"></i> Save Entry</button>
+                        <span id="journal-autosave-status" class="autosave-status"></span>
+                    </div>
+                </div>
+
+                <!-- Sidebar: recent entries list -->
+                <div class="journal-sidebar">
+                    <h3>Recent Entries</h3>
+                    <div id="journal-entries-list" class="journal-entries-list"></div>
+                </div>
             </div>
         </section>
 
