@@ -8,7 +8,7 @@
     "build": "echo 'Build process would go here'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "docker build -t trading-journal .",
-    "docker:run": "docker run -p 8080:80 trading-journal"
+    "docker:run": "docker run -p 3000:3000 trading-journal"
   },
   "dependencies": {
     "express": "^5.1.0"
