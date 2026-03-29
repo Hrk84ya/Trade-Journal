@@ -38,6 +38,10 @@ app.put('/trading_journal_data.json', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
+app.listen(port, (error) => {
+    if (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
     console.log(`Server running at http://localhost:${port}`);
 }); 
