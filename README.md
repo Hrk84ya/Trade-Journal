@@ -1,149 +1,137 @@
-# Trading Journal
+# Zoro Trade Journal
 
-A premium trading journal application for serious traders. Track every trade with rich detail, analyze performance with advanced metrics, and build discipline through daily journaling — all in a polished, responsive interface.
+Zoro is a private, browser-based trade journal for desktop traders. It tracks trades, risk, discipline, daily notes, playbooks, and performance without a server or account.
 
-![Node.js](https://img.shields.io/badge/Node.js-22-green) ![Express](https://img.shields.io/badge/Express-5.x-blue) ![Chart.js](https://img.shields.io/badge/Chart.js-4.5-orange) ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+## Highlights
+
+- Premium light and dark design with a soft-gold accent
+- Static HTML, CSS, and JavaScript
+- Ready for GitHub Pages
+- Indian Rupee formatting and Indian Standard Time
+- Browser-only storage with JSON backup and restore
+- Support for stocks, options, futures, crypto, and forex
 
 ## Features
 
 ### Dashboard
-- Hero banner with net P&L, win rate, and trade count at a glance
-- Equity curve chart with cumulative net P&L
-- Quick-stat cards for total P&L, fees, and average R:R
-- Recent trades table
 
-### Rich Trade Data Model
-- Multi-asset support: Stocks, Options, Futures, Crypto — each with class-specific fields (strike/expiry for options, tick value for futures, leverage for crypto)
-- Partial entries and exits for scaling in/out with weighted average price calculation
-- Stop-loss and take-profit prices with real risk:reward ratio
-- Fees and commissions tracking (net P&L = gross P&L minus fees)
-- Flexible tag system: setup types + custom labels, both user-extensible
-- Emotional state tracking (calm, confident, anxious, FOMO, revenge, etc.)
-- Confidence level slider (1–10)
-- Screenshot attachments per trade (uploaded to server)
-- Free-form notes
+- Total, realised, and open P&L
+- Win rate and profit factor
+- Equity curve
+- Recent trades
+- Daily loss, profit, and trade-count limits
+- Guided empty state for first-time use
 
-### Daily Journal
-- Four sections per day: Pre-Market Plan, End-of-Day Review, Lessons Learned, Free Notes
-- Markdown editor with toolbar (bold, italic, headings, lists, blockquotes, code blocks, checklists)
-- Live markdown preview toggle (powered by marked.js)
-- Keyboard shortcuts (Cmd/Ctrl+S to save, Cmd/Ctrl+B/I for formatting)
-- 2-second autosave with status indicator
-- Date navigation with prev/next arrows and "Today" button
-- Recent entries sidebar with snippets and section indicators
+### Trade Tracking
 
-### Advanced Analytics
-- Key metrics: Expectancy, Profit Factor, Sharpe Ratio, Max Drawdown, DD Recovery, Win/Loss Streaks, Avg Win, Avg Loss
-- Equity curve with drawdown overlay (dual Y-axis)
-- GitHub-style P&L calendar heatmap with year navigation
-- Setup comparison (win rate + avg P&L per setup)
-- Ticker performance (top 15 by total net P&L)
-- Performance by day of week, hour of day, and trading session (Asia/London/NY)
-- Win/loss distribution pie chart
-- Monthly performance bars
-- Streak visualization (last 30 consecutive win/loss streaks)
+- Open and closed trades
+- Long and short positions
+- Multiple entries and exits
+- Weighted prices and automatic net P&L
+- Current price tracking for open positions
+- Stop loss, target, fees, risk amount, and planned R:R
+- Setup, fixed tags, and custom tags
+- Mood, confidence, rule-following, mistakes, and notes
+- Edit, inspect, and delete trades
 
 ### Trade History
-- Full trade table with sorting by any column
-- Filters: search, date range, asset class, setup, win/loss
-- Trade detail modal with full breakdown, entries/exits table, screenshots, tags, psychology data
-- Inline edit and delete with confirmation
 
-### UI/UX
-- Premium design with amber-to-red gradient accent, glassmorphism cards, and DM Sans + Playfair Display + JetBrains Mono typography
-- Collapsible sidebar with icon-only mode (state persisted)
-- Light and dark themes with smooth transitions
-- Bento grid analytics layout
-- Fluid calendar heatmap that fills the card width
-- Responsive down to mobile (sidebar auto-collapses)
+- Search by symbol, setup, or tag
+- Filter by market, status, and result
+- View today, this week, this month, or custom dates
+- Sort the trade table
+- Open a full trade-detail drawer
+- Confirm before deleting a trade
+
+### Daily Journal
+
+Each date has four note sections:
+
+- Pre-market
+- Trade plan
+- Day review
+- Lessons
+
+Notes are saved in the current browser.
+
+### Setup Playbook
+
+- Save setup rules and checklists
+- Add market details and notes
+- Edit or delete saved playbooks
+- Reuse playbook names when recording trades
+- Set daily loss, profit, and trade-count limits
+
+### Analytics
+
+- Expectancy, best trade, worst trade, and max drawdown
+- Equity and drawdown chart
+- Win and loss mix
+- P&L by market
+- Weekday and time-of-day reports
+- Clickable daily P&L calendar
+- Setup scorecards and best-setup ranking
+- Tag performance
+- Repeated-mistake costs
+- Mood and confidence results
+- Rule-following score
+- Automatic weekly review
+- Printable monthly report
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | HTML5, CSS3 (Grid, Flexbox, Custom Properties), Vanilla JS (ES6 Modules) |
+| Part | Tool |
+|---|---|
+| App | HTML5, CSS3, vanilla JavaScript |
 | Charts | Chart.js 4.5 |
-| Markdown | marked.js 16.3 |
-| Icons | Font Awesome 6.7 |
-| Fonts | Google Fonts (DM Sans, Playfair Display, JetBrains Mono) |
-| Backend | Node.js 22, Express 5.x |
-| Container | Docker (single-stage, Node alpine) |
+| Icons | Font Awesome Free 6.7 |
+| Fonts | Google Fonts |
+| Storage | Browser `localStorage` |
+| Hosting | GitHub Pages or any static host |
+
+Chart.js, Font Awesome, and Google Fonts load from public CDNs. An internet connection is needed for those assets.
 
 ## Project Structure
 
-```
-├── index.html              # SPA entry point
-├── server.js               # Express API (data persistence + screenshot uploads)
-├── logo.svg                # App icon (amber-red gradient)
-├── package.json
-├── Dockerfile
-├── nginx.conf              # Reverse-proxy config (optional)
+```text
+Trade-Journal/
+├── index.html
 ├── css/
-│   └── styles.css          # Full premium stylesheet
+│   └── styles.css
 ├── js/
-│   ├── main.js             # App bootstrap, theme, navigation, sidebar
-│   ├── trades.js           # Trade CRUD, form handling, table rendering
-│   ├── charts.js           # All Chart.js charts + analytics engine + heatmap
-│   ├── journal.js          # Daily journal manager
-│   └── storage.js          # LocalStorage + server sync, tags, journal entries
-└── uploads/                # Screenshot uploads (gitignored)
+│   └── app.js
+├── README.md
+└── LICENSE
 ```
 
-## Getting Started
+## Run Locally
 
-### Prerequisites
-
-- Node.js 22 or higher
-- npm
-
-### Local Development
+No install or build step is needed.
 
 ```bash
-git clone https://github.com/yourusername/trade-journal.git
-cd trade-journal
-npm install
-node server.js
+python3 -m http.server 8777 --bind 127.0.0.1
 ```
 
-Open `http://localhost:3000`
+Open [http://127.0.0.1:8777](http://127.0.0.1:8777).
 
-### Docker
+Run the command from the project folder.
 
-```bash
-docker build -t trade-journal .
-docker run -p 3000:3000 trade-journal
-```
+## Data and Backups
 
-## Usage
+Zoro stores all data in the current browser using `localStorage`.
 
-### Adding a Trade
-Click "New Trade" in the sidebar. The form is split into two columns — core trade data on the left (asset class, entries/exits, risk management) and metadata on the right (setup, tags, psychology, screenshots, notes). Add multiple entries/exits for scaling. Save navigates back to the dashboard.
+- No data is sent to a server.
+- Different browsers keep separate data.
+- Clearing browser data removes the journal.
+- Use **Export** often to download a JSON backup.
+- Use **Import** to restore a saved backup.
 
-### Journal
-Navigate to "Journal" to write daily pre-market plans and end-of-day reviews. Switch between four sections via tabs. Write in Markdown — toggle preview with the eye icon. Entries autosave after 2 seconds of inactivity.
+Do not use Import with a file you do not trust.
 
-### Analytics
-The analytics page shows key performance metrics in a hero banner, followed by a bento grid of charts. The calendar heatmap shows daily P&L for the selected year. All calculations use net P&L (after fees).
+## Desktop Support
 
-### Export / Import
-In Trade History, use Export to download all data as JSON. Use Import to restore from a previous export. Journal entries, custom tags, and theme preference are all included.
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/trading_journal_data.json` | Read all app data |
-| PUT | `/trading_journal_data.json` | Write all app data |
-| POST | `/api/screenshots` | Upload a screenshot (base64) |
-| DELETE | `/api/screenshots/:filename` | Delete a screenshot |
+Zoro is designed for desktop web browsers. Mobile layouts are not supported.
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
-
-## Acknowledgments
-
-- [Chart.js](https://www.chartjs.org/) — charts
-- [marked.js](https://marked.js.org/) — markdown rendering
-- [Font Awesome](https://fontawesome.com/) — icons
-- [Google Fonts](https://fonts.google.com/) — DM Sans, Playfair Display, JetBrains Mono
+Released under the [MIT License](LICENSE).
